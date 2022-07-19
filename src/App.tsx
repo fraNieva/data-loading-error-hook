@@ -1,24 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import useRequest from "./hooks/UseRequest";
 
+type PetImageResponse = {
+  status: string;
+  message: string;
+};
 function App() {
+  const [data, loading, error] = useRequest<PetImageResponse>(
+    "https://dog.ceo/api/breeds/image/random"
+  );
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {Object.keys(error).length > 0 && <p>Something went wrong</p>}
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <img src={data?.message} alt="Dog" loading="lazy" />
+      )}
     </div>
   );
 }
