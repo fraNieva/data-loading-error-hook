@@ -1,23 +1,20 @@
 import React from "react";
 import "./App.css";
-import useRequest from "./hooks/UseRequest";
+import { useRequest } from "./hooks/UseRequest";
 
-type PetImageResponse = {
-  status: string;
-  message: string;
-};
 function App() {
-  const [data, loading, error] = useRequest<PetImageResponse>(
-    "https://dog.ceo/api/breeds/image/random"
-  );
+  let { dogImage, error, isPending, refetch } = useRequest();
+  console.log("isPending :>> ", isPending);
 
   return (
     <div className="App">
-      {Object.keys(error).length > 0 && <p>Something went wrong</p>}
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <img src={data?.message} alt="Dog" loading="lazy" />
+      {error && <pre>ERROR! {error}...</pre>}
+      {isPending && <pre>LOADING...</pre>}
+      <pre>{JSON.stringify(dogImage)}</pre>
+      {!isPending && (
+        <button onClick={refetch}>
+          <img src={dogImage?.message} alt="Dog" />
+        </button>
       )}
     </div>
   );

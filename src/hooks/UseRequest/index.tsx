@@ -1,34 +1,28 @@
-import { useState, useEffect } from "react";
+import { useAsyncFunction } from "../UseAsyncFunction";
 
-function useRequest<D>(url: string) {
-  const [data, setData] = useState<D | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<any>({});
+const getDogImages = (): Promise<PetImageResponse> => {
+  return fetch("https://dog.ceo/api/breeds/image/random").then((response) => {
+    if (response.status !== 200) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+    return response.json();
+  });
+};
 
-  useEffect(() => {
-    let ignore = false;
+type PetImageResponse = {
+  status: string;
+  message: string;
+};
 
-    const fetchUrl = () => {
-      try {
-        setError({});
-        fetch(url)
-          .then((res) => res.json())
-          .then((response) => {
-            if (!ignore) setData(response);
-          });
-      } catch (error) {
-        setError(error);
-      }
-      setLoading(false);
-    };
-    fetchUrl();
+const dogImageEmpty: PetImageResponse = {
+  status: "string",
+  message: "string",
+};
 
-    return () => {
-      ignore = true;
-    };
-  }, [url]);
-
-  return [data, loading, error];
-}
-
-export default useRequest;
+export const useRequest = () => {
+  const [dogImage, error, isPending, refetch] = useAsyncFunction(
+    getDogImages,
+    dogImageEmpty
+  );
+  return { dogImage, error, isPending, refetch };
+};
